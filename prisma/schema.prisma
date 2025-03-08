@@ -142,13 +142,6 @@ model Order {
   Payment    Payment[]
 }
 
-enum OrderStatus {
-  PENDING
-  ACCEPTED
-  SHIPPED
-  COMPLETED
-  REJECTED
-}
 
 model OrderItem {
   id        String @id @default(uuid())
@@ -204,6 +197,14 @@ model WishlistItem {
 
   wishlist Wishlist @relation(fields: [wishlistId], references: [id])
   product  Product  @relation(fields: [productId], references: [id])
+}
+
+enum OrderStatus {
+  PENDING
+  ACCEPTED
+  SHIPPED
+  COMPLETED
+  REJECTED
 }
 
 enum UserRole {
