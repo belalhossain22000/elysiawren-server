@@ -29,16 +29,6 @@ model User {
   @@map("Users")
 }
 
-model Brand {
-  id        String    @id @default(uuid())
-  name      String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  Product   Product[]
-
-  @@map("Brands")
-}
-
 model Category {
   id          String        @id @default(uuid())
   name        String
@@ -70,7 +60,9 @@ model Product {
   subcategoryId    String
   title            String
   price            String
-  discountPrice    String
+  discountRate     String
+  isFeatured       Boolean  @default(false)
+  onSale           Boolean  @default(false)
   Image            Image[]
   Color            Color[]
   sizes            String[]
@@ -79,13 +71,13 @@ model Product {
   shortDescription String
   description      String
 
-  brand        Brand          @relation(fields: [brandId], references: [id])
   category     Category       @relation(fields: [categoryId], references: [id])
   subcategory  Subcategory    @relation(fields: [subcategoryId], references: [id])
   Review       Review[]
   CartItem     CartItem[]
   OrderItem    OrderItem[]
   WishlistItem WishlistItem[]
+  Brand        Brand          @relation(fields: [brandId], references: [id])
 }
 
 model Image {
@@ -135,13 +127,16 @@ model Order {
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
   shippingAddress String
+  zipCode         String
+  city            String
+  state           String
+  country         String
 
   user       User        @relation(fields: [userId], references: [id])
   cart       Cart        @relation(fields: [cartId], references: [id])
   orderItems OrderItem[]
   Payment    Payment[]
 }
-
 
 model OrderItem {
   id        String @id @default(uuid())
@@ -197,6 +192,62 @@ model WishlistItem {
 
   wishlist Wishlist @relation(fields: [wishlistId], references: [id])
   product  Product  @relation(fields: [productId], references: [id])
+}
+
+model Brand {
+  id        String    @id @default(uuid())
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Product   Product[]
+
+  @@map("Brands")
+}
+
+model ShippingPrice {
+  id          String   @id @default(uuid())
+  type        String
+  price       Float
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Ads {
+  id          String   @id @default(uuid())
+  title       String
+  image       String
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model NewsLetter {
+  id        String   @id @default(uuid())
+  email     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Banner {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  image       String
+  buttonText  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Testimonial {
+  id        String   @id @default(uuid())
+  image     String
+  name      String
+  category  String
+  review    String
+  rating    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum OrderStatus {
