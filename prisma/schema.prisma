@@ -113,6 +113,10 @@ model Order {
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
   shippingAddress String
+  zipCode         String
+  city            String
+  state           String
+  country         String
 
   user       User        @relation(fields: [userId], references: [id])
   cart       Cart        @relation(fields: [cartId], references: [id])
