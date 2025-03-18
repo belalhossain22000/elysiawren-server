@@ -3,7 +3,7 @@ import { uploadToDigitalOceanAWS } from "./uploadToDigitalOceanAWS";
 
 export const uploadFile = async (file: Express.Multer.File, fileName: string) => {
     if (!file) {
-      throw new ApiError(400, `${fileName} image is required`);
+      throw new ApiError(400, `${fileName}  is required`);
     }
     return await uploadToDigitalOceanAWS(file);
   };
