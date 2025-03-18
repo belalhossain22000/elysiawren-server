@@ -1,12 +1,12 @@
-import { Secret } from "jsonwebtoken";
-import config from "../../../config";
-import { jwtHelpers } from "../../../helpars/jwtHelpers";
-import prisma from "../../../shared/prisma";
-import * as bcrypt from "bcrypt";
-import ApiError from "../../../errors/ApiErrors";
-import emailSender from "./emailSender";
-import { UserStatus } from "@prisma/client";
-import httpStatus from "http-status";
+import { Secret } from "jsonwebtoken"
+import config from "../../../config"
+import { jwtHelpers } from "../../../helpars/jwtHelpers"
+import prisma from "../../../shared/prisma"
+import * as bcrypt from "bcrypt"
+import ApiError from "../../../errors/ApiErrors"
+import emailSender from "./emailSender"
+import { UserStatus } from "@prisma/client"
+import httpStatus from "http-status"
 
 // user login
 const loginUser = async (payload: { email: string; password: string }) => {
@@ -14,21 +14,21 @@ const loginUser = async (payload: { email: string; password: string }) => {
     where: {
       email: payload.email,
     },
-  });
+  })
 
   if (!userData?.email) {
     throw new ApiError(
       httpStatus.NOT_FOUND,
       "User not found! with this email " + payload.email
-    );
+    )
   }
   const isCorrectPassword: boolean = await bcrypt.compare(
     payload.password,
     userData.password
-  );
+  )
 
   if (!isCorrectPassword) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "Password incorrect!");
+    throw new ApiError(httpStatus.BAD_REQUEST, "Password incorrect!")
   }
   const accessToken = jwtHelpers.generateToken(
     {
@@ -38,10 +38,10 @@ const loginUser = async (payload: { email: string; password: string }) => {
     },
     config.jwt.jwt_secret as Secret,
     config.jwt.expires_in as string
-  );
+  )
 
-  return { token: accessToken };
-};
+  return { token: accessToken }
+}
 
 // get user profile
 const getMyProfile = async (id: string) => {
@@ -49,19 +49,10 @@ const getMyProfile = async (id: string) => {
     where: {
       id: id,
     },
-    select: {
-      id: true,
+  })
 
-      email: true,
-      profileImage: true,
-      phone: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-  });
-
-  return userProfile;
-};
+  return userProfile
+}
 
 // change password
 const changePassword = async (
@@ -71,19 +62,19 @@ const changePassword = async (
 ) => {
   const user = await prisma.user.findUnique({
     where: { id: id },
-  });
+  })
 
   if (!user) {
-    throw new ApiError(404, "User not found");
+    throw new ApiError(404, "User not found")
   }
 
-  const isPasswordValid = await bcrypt.compare(oldPassword, user?.password);
+  const isPasswordValid = await bcrypt.compare(oldPassword, user?.password)
 
   if (!isPasswordValid) {
-    throw new ApiError(401, "Incorrect old password");
+    throw new ApiError(401, "Incorrect old password")
   }
 
-  const hashedPassword = await bcrypt.hash(newPassword, 12);
+  const hashedPassword = await bcrypt.hash(newPassword, 12)
 
   await prisma.user.update({
     where: {
@@ -92,28 +83,28 @@ const changePassword = async (
     data: {
       password: hashedPassword,
     },
-  });
-  return { message: "Password changed successfully" };
-};
+  })
+  return { message: "Password changed successfully" }
+}
 
 const forgotPassword = async (payload: { email: string }) => {
   const userData = await prisma.user.findUnique({
     where: {
       email: payload.email,
     },
-  });
+  })
 
   if (!userData) {
-    throw new ApiError(httpStatus.NOT_FOUND, "User not found with this email");
+    throw new ApiError(httpStatus.NOT_FOUND, "User not found with this email")
   }
   const resetPassToken = jwtHelpers.generateToken(
     { email: userData.email, role: userData.role, id: userData.id },
     config.jwt.reset_pass_secret as Secret,
     config.jwt.reset_pass_token_expires_in as string
-  );
+  )
 
   const resetPassLink =
-    config.reset_pass_link + `?userId=${userData.id}&token=${resetPassToken}`;
+    config.reset_pass_link + `?userId=${userData.id}&token=${resetPassToken}`
 
   await emailSender(
     "Reset Your Password",
@@ -136,29 +127,29 @@ const forgotPassword = async (payload: { email: string }) => {
 </div>
 
       `
-  );
-  return { message: "Reset password link sent via your email successfully" };
-};
+  )
+  return { message: "Reset password link sent via your email successfully" }
+}
 
 // reset password
 const resetPassword = async (token: string, payload: { password: string }) => {
   const isValidToken = jwtHelpers.verifyToken(
     token,
     config.jwt.reset_pass_secret as Secret
-  );
+  )
 
   if (!isValidToken) {
-    throw new ApiError(httpStatus.FORBIDDEN, "Forbidden!");
+    throw new ApiError(httpStatus.FORBIDDEN, "Forbidden!")
   }
 
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
       id: isValidToken.id,
     },
-  });
+  })
 
   // hash password
-  const password = await bcrypt.hash(payload.password, 12);
+  const password = await bcrypt.hash(payload.password, 12)
 
   // update into database
   await prisma.user.update({
@@ -168,9 +159,9 @@ const resetPassword = async (token: string, payload: { password: string }) => {
     data: {
       password,
     },
-  });
-  return { message: "Password reset successfully" };
-};
+  })
+  return { message: "Password reset successfully" }
+}
 
 export const AuthServices = {
   loginUser,
@@ -178,4 +169,4 @@ export const AuthServices = {
   changePassword,
   forgotPassword,
   resetPassword,
-};
+}
