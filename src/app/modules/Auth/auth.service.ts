@@ -51,10 +51,11 @@ const getMyProfile = async (id: string) => {
     },
     select: {
       id: true,
-
+      firstName: true,
+      lastName: true,
+      surName: true,
       email: true,
       profileImage: true,
-      phone: true,
       createdAt: true,
       updatedAt: true,
     },

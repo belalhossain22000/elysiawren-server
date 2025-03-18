@@ -14,9 +14,9 @@ import { uploadFile } from "../../../helpars/uploadFile";
 
 // Create a new user and business in the database using Prisma transaction
 const createUserIntoDb = async (req: Request) => {
-  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-  const userData = req.body.user;
-  const businessData = req.body.business;
+  const file = req.file;
+  const userData = req.body
+
 
   // Using prisma.$transaction with transactionClient for atomic operations
   const result = await prisma.$transaction(
@@ -31,7 +31,7 @@ const createUserIntoDb = async (req: Request) => {
       }
 
       // Handle file uploads for user profile image
-      let profileImage = await uploadFile(files?.profileImage?.[0], "Profile");
+      let profileImage = await uploadFile(file!, "Profile");
       userData.profileImage = profileImage.Location;
 
       // Hash password securely
@@ -44,36 +44,8 @@ const createUserIntoDb = async (req: Request) => {
       const user = await transactionClient.user.create({
         data: { ...userData, password: hashedPassword },
       });
-
-      // Set business owner ID to the user ID
-      businessData.ownerId = user.id;
-
-      // Handle file uploads for business images
-      let companyLogo = await uploadFile(
-        files.companyLogo?.[0],
-        "Company Logo"
-      );
-      businessData.companyLogo = companyLogo.Location;
-
-      let businessLicense = await uploadFile(
-        files.businessLicense?.[0],
-        "Business License"
-      );
-      businessData.businessLicense = businessLicense.Location;
-
-      let transportPermitImage = await uploadFile(
-        files.transportPermitImage?.[0],
-        "Transport Permit"
-      );
-      businessData.transportPermitImage = transportPermitImage.Location;
-
-      // Create business within the transaction
-      const business = await transactionClient.business.create({
-        data: { ...businessData },
-      });
-
-      // Return the created user and business data
-      return { user, business };
+      
+      return { user };
     },
     {
       timeout: 10000,

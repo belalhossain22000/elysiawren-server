@@ -11,9 +11,8 @@ model User {
   id           String     @id @default(uuid())
   firstName    String
   lastName     String
-  surName      String
+  userName     String?
   email        String     @unique
-  postCode     String
   profileImage String?
   password     String
   role         UserRole   @default(USER)
@@ -40,68 +39,47 @@ model Brand {
 }
 
 model Category {
-  id          String        @id @default(uuid())
-  name        String
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  Subcategory Subcategory[]
-  Product     Product[]
+  id        String    @id @default(uuid())
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Product   Product[]
 
   @@map("Categories")
 }
 
-model Subcategory {
-  id         String   @id @default(uuid())
-  name       String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  categoryId String?
-
-  category Category? @relation(fields: [categoryId], references: [id])
-  Product  Product[]
-
-  @@map("Subcategories")
-}
-
 model Product {
-  id               String   @id @default(uuid())
+  id               String  @id @default(uuid())
   brandId          String
   categoryId       String
-  subcategoryId    String
-  title            String
-  price            String
-  discountPrice    String
-  Image            Image[]
-  Color            Color[]
-  sizes            String[]
+  name             String
+  price            Float
+  discount         Float
+  puffs            Int
+  nicotineStrength Float
+  battery          Int
+  eLiquidCapacity  Float
+  flavorsAvailable String
+  drawActivation   Boolean
+  deviceType       String
+  safetyWarnings   String
+  imageUrl         String
   isStock          Boolean
   quantity         Int
-  shortDescription String
   description      String
-
   brand        Brand          @relation(fields: [brandId], references: [id])
   category     Category       @relation(fields: [categoryId], references: [id])
-  subcategory  Subcategory    @relation(fields: [subcategoryId], references: [id])
   Review       Review[]
   CartItem     CartItem[]
   OrderItem    OrderItem[]
   WishlistItem WishlistItem[]
+
 }
 
 model Image {
   id        String  @id @default(uuid())
   url       String
-  altText   String
-  productId String
-  product   Product @relation(fields: [productId], references: [id])
-}
-
-model Color {
-  id        String  @id @default(uuid())
-  name      String
-  hexCode   String
-  productId String
-  product   Product @relation(fields: [productId], references: [id])
+  altText   String?
 }
 
 model Cart {
@@ -131,7 +109,7 @@ model Order {
   userId          String
   cartId          String
   totalAmount     Float
-  status          OrderStatus // e.g., 'Pending', 'Completed', 'Cancelled'
+  status          OrderStatus 
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
   shippingAddress String
@@ -142,6 +120,15 @@ model Order {
   Payment    Payment[]
 }
 
+
+enum OrderStatus {
+  PENDING
+  ACCEPTED
+  SHIPPED
+  COMPLETED
+  DELIVERED
+  REJECTED
+}
 
 model OrderItem {
   id        String @id @default(uuid())
@@ -199,13 +186,6 @@ model WishlistItem {
   product  Product  @relation(fields: [productId], references: [id])
 }
 
-enum OrderStatus {
-  PENDING
-  ACCEPTED
-  SHIPPED
-  COMPLETED
-  REJECTED
-}
 
 enum UserRole {
   ADMIN

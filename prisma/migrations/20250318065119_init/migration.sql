@@ -1,8 +1,34 @@
 -- CreateEnum
-CREATE TYPE "OrderStatus" AS ENUM ('PENDING', 'ACCEPTED', 'SHIPPED', 'COMPLETED', 'REJECTED');
+CREATE TYPE "OrderStatus" AS ENUM ('PENDING', 'ACCEPTED', 'SHIPPED', 'COMPLETED', 'DELIVERED', 'REJECTED');
+
+-- CreateEnum
+CREATE TYPE "UserRole" AS ENUM ('ADMIN', 'SUPER_ADMIN', 'USER');
 
 -- CreateEnum
 CREATE TYPE "paymentStatus" AS ENUM ('PENDING', 'SUCCEEDED', 'FAILED', 'REJECTED');
+
+-- CreateEnum
+CREATE TYPE "UserStatus" AS ENUM ('ACTIVE', 'INACTIVE', 'BLOCKED');
+
+-- CreateEnum
+CREATE TYPE "Status" AS ENUM ('PENDING', 'ACCEPTED', 'REJECTED');
+
+-- CreateTable
+CREATE TABLE "Users" (
+    "id" TEXT NOT NULL,
+    "firstName" TEXT NOT NULL,
+    "lastName" TEXT NOT NULL,
+    "userName" TEXT,
+    "email" TEXT NOT NULL,
+    "profileImage" TEXT,
+    "password" TEXT NOT NULL,
+    "role" "UserRole" NOT NULL DEFAULT 'USER',
+    "status" "UserStatus" NOT NULL DEFAULT 'ACTIVE',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Users_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "Brands" (
@@ -25,29 +51,24 @@ CREATE TABLE "Categories" (
 );
 
 -- CreateTable
-CREATE TABLE "Subcategories" (
-    "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "categoryId" TEXT,
-
-    CONSTRAINT "Subcategories_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "Product" (
     "id" TEXT NOT NULL,
     "brandId" TEXT NOT NULL,
     "categoryId" TEXT NOT NULL,
-    "subcategoryId" TEXT NOT NULL,
-    "title" TEXT NOT NULL,
-    "price" TEXT NOT NULL,
-    "discountPrice" TEXT NOT NULL,
-    "sizes" TEXT[],
+    "name" TEXT NOT NULL,
+    "price" DOUBLE PRECISION NOT NULL,
+    "discount" DOUBLE PRECISION NOT NULL,
+    "puffs" INTEGER NOT NULL,
+    "nicotineStrength" DOUBLE PRECISION NOT NULL,
+    "battery" INTEGER NOT NULL,
+    "eLiquidCapacity" DOUBLE PRECISION NOT NULL,
+    "flavorsAvailable" TEXT NOT NULL,
+    "drawActivation" BOOLEAN NOT NULL,
+    "deviceType" TEXT NOT NULL,
+    "safetyWarnings" TEXT NOT NULL,
+    "imageUrl" TEXT NOT NULL,
     "isStock" BOOLEAN NOT NULL,
     "quantity" INTEGER NOT NULL,
-    "shortDescription" TEXT NOT NULL,
     "description" TEXT NOT NULL,
 
     CONSTRAINT "Product_pkey" PRIMARY KEY ("id")
@@ -57,20 +78,9 @@ CREATE TABLE "Product" (
 CREATE TABLE "Image" (
     "id" TEXT NOT NULL,
     "url" TEXT NOT NULL,
-    "altText" TEXT NOT NULL,
-    "productId" TEXT NOT NULL,
+    "altText" TEXT,
 
     CONSTRAINT "Image_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Color" (
-    "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "hexCode" TEXT NOT NULL,
-    "productId" TEXT NOT NULL,
-
-    CONSTRAINT "Color_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -164,23 +174,14 @@ CREATE TABLE "WishlistItem" (
     CONSTRAINT "WishlistItem_pkey" PRIMARY KEY ("id")
 );
 
--- AddForeignKey
-ALTER TABLE "Subcategories" ADD CONSTRAINT "Subcategories_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Categories"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+-- CreateIndex
+CREATE UNIQUE INDEX "Users_email_key" ON "Users"("email");
 
 -- AddForeignKey
 ALTER TABLE "Product" ADD CONSTRAINT "Product_brandId_fkey" FOREIGN KEY ("brandId") REFERENCES "Brands"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Product" ADD CONSTRAINT "Product_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Categories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Product" ADD CONSTRAINT "Product_subcategoryId_fkey" FOREIGN KEY ("subcategoryId") REFERENCES "Subcategories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Image" ADD CONSTRAINT "Image_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Color" ADD CONSTRAINT "Color_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Cart" ADD CONSTRAINT "Cart_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
