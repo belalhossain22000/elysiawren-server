@@ -18,7 +18,7 @@ router.put(
   ProductControllers.updateProduct
 )
 router.delete(
-  "/",
+  "/:id",
   auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
   ProductControllers.deleteProduct
 )

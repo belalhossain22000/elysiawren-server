@@ -31,11 +31,15 @@ const createSubCategory = async (name: string, categoryId: string) => {
 }
 
 const getAllSubCategories = async (query: any) => {
-  const { page = 1, limit = 10 } = query
+  const { page = 1, limit = 10, categoryId } = query
   const skip = (page - 1) * limit
   const take = limit
 
-  const whereConditions = {}
+  const whereConditions: any = {}
+
+  if (categoryId) {
+    whereConditions["categoryId"] = categoryId
+  }
 
   const totalSubCategories = await prisma.subcategory.count({
     where: whereConditions,

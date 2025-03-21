@@ -59,7 +59,7 @@ model Product {
   categoryId       String
   subCategoryId    String
   title            String
-  price            String
+  price            Float
   discountRate     Float @default(0)
   isFeatured       Boolean  @default(false)
   onSale           Boolean  @default(false)

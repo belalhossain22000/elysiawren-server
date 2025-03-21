@@ -1,6 +1,7 @@
 import { Product } from "@prisma/client"
 import ApiError from "../../../errors/ApiErrors"
 import prisma from "../../../shared/prisma"
+import { ImageService } from "../Image/Image.service"
 
 const createProduct = async (req: Product) => {
   const {
@@ -12,6 +13,8 @@ const createProduct = async (req: Product) => {
     quantity,
     description,
   } = req
+
+  // console.log("req", req)
 
   if (
     !title ||
@@ -54,6 +57,7 @@ const createProduct = async (req: Product) => {
   if (!existingSubCategory) {
     throw new ApiError(400, "Sub category not found")
   }
+  console.log({ existingBrand }, { existingCategory }, { existingSubCategory })
 
   const product = await prisma.product.create({
     data: {
@@ -79,9 +83,12 @@ const getAllProducts = async (query: any) => {
     categoryId,
     subCategoryId,
     title,
+    isAvailable = "true",
   } = query
   const skip = (page - 1) * limit
   const take = limit
+
+  // console.log(typeof isAvailable)
 
   const whereConditions: any = {}
 
@@ -89,6 +96,16 @@ const getAllProducts = async (query: any) => {
     whereConditions.title = {
       contains: title,
       mode: "insensitive",
+    }
+  }
+
+  if (isAvailable === "true") {
+    whereConditions.quantity = {
+      gt: 0,
+    }
+  } else {
+    whereConditions.quantity = {
+      lte: 0,
     }
   }
 
@@ -116,6 +133,8 @@ const getAllProducts = async (query: any) => {
       Brand: true,
       category: true,
       subcategory: true,
+      Image: true,
+      Review: true,
     },
   })
 
@@ -143,6 +162,7 @@ const getProductById = async (id: string) => {
 }
 
 const updateProduct = async (id: string, payload: Partial<Product>) => {
+  console.log("payload", payload)
   const existingProduct = await prisma.product.findUnique({
     where: {
       id,
@@ -151,6 +171,42 @@ const updateProduct = async (id: string, payload: Partial<Product>) => {
 
   if (!existingProduct) {
     throw new ApiError(404, "Product not found")
+  }
+
+  if (payload.brandId) {
+    const existingBrand = await prisma.brand.findUnique({
+      where: {
+        id: payload.brandId,
+      },
+    })
+
+    if (!existingBrand) {
+      throw new ApiError(400, "Brand not found")
+    }
+  }
+
+  if (payload.categoryId) {
+    const existingCategory = await prisma.category.findUnique({
+      where: {
+        id: payload.categoryId,
+      },
+    })
+
+    if (!existingCategory) {
+      throw new ApiError(400, "Category not found")
+    }
+  }
+
+  if (payload.subCategoryId) {
+    const existingSubCategory = await prisma.subcategory.findUnique({
+      where: {
+        id: payload.subCategoryId,
+      },
+    })
+
+    if (!existingSubCategory) {
+      throw new ApiError(400, "Sub category not found")
+    }
   }
 
   const product = await prisma.product.update({
@@ -174,10 +230,42 @@ const deleteProduct = async (id: string) => {
     throw new ApiError(404, "Product not found")
   }
 
-  await prisma.product.delete({
-    where: {
-      id,
-    },
+  await prisma.$transaction(async (tsx) => {
+    await tsx.image.deleteMany({
+      where: {
+        productId: id,
+      },
+    })
+
+    await tsx.review.deleteMany({
+      where: {
+        productId: id,
+      },
+    })
+
+    await tsx.cartItem.deleteMany({
+      where: {
+        productId: id,
+      },
+    })
+
+    await tsx.orderItem.deleteMany({
+      where: {
+        productId: id,
+      },
+    })
+
+    await tsx.wishlistItem.deleteMany({
+      where: {
+        productId: id,
+      },
+    })
+
+    await tsx.product.delete({
+      where: {
+        id,
+      },
+    })
   })
 
   return "Product deleted successfully"
