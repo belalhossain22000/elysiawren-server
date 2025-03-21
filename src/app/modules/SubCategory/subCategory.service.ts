@@ -2,7 +2,7 @@ import ApiError from "../../../errors/ApiErrors"
 import prisma from "../../../shared/prisma"
 
 const createSubCategory = async (name: string, categoryId: string) => {
-  const existingSubCategory = await prisma.category.findUnique({
+  const existingSubCategory = await prisma.subcategory.findUnique({
     where: {
       name,
     },
@@ -31,7 +31,7 @@ const createSubCategory = async (name: string, categoryId: string) => {
 }
 
 const getAllSubCategories = async (query: any) => {
-  const { page, limit } = query
+  const { page = 1, limit = 10 } = query
   const skip = (page - 1) * limit
   const take = limit
 
@@ -80,16 +80,16 @@ const updateSubCategory = async (
     if (!category) {
       throw new ApiError(400, "Category not found")
     }
-    return prisma.subcategory.update({
-      where: {
-        id,
-      },
-      data: {
-        name,
-        categoryId,
-      },
-    })
   }
+  return prisma.subcategory.update({
+    where: {
+      id,
+    },
+    data: {
+      name,
+      categoryId,
+    },
+  })
 }
 
 const deleteSubCategory = async (id: string) => {

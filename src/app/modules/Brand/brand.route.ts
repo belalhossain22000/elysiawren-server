@@ -1,25 +1,26 @@
 import express from "express"
 import auth from "../../middlewares/auth"
 import { UserRole } from "@prisma/client"
-import { SubCategoryControllers } from "./subCategory.controller"
+import { BrandControllers } from "./brand.controller"
+
 const router = express.Router()
 
 router.post(
   "/",
   auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
-  SubCategoryControllers.createSubCategory
+  BrandControllers.createBrand
 )
-router.get("/", SubCategoryControllers.getAllSubCategories)
-router.get("/:id", SubCategoryControllers.getSubCategoryById)
+router.get("/", BrandControllers.getAllBrands)
+router.get("/:id", BrandControllers.getBrandById)
 router.put(
   "/:id",
   auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
-  SubCategoryControllers.updateSubCategory
+  BrandControllers.updateBrand
 )
 router.delete(
   "/:id",
   auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
-  SubCategoryControllers.deleteSubCategory
+  BrandControllers.deleteBrand
 )
 
-export const SubCategoryRoutes = router
+export const BrandRoutes = router

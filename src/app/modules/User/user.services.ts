@@ -10,6 +10,12 @@ import { userSearchAbleFields } from "./user.costant"
 
 // Create a new user in the database.
 const createUserIntoDb = async (payload: User) => {
+  const { email, password, firstName, lastName, surName, postCode } = payload
+
+  if (!email || !password || !firstName || !lastName || !surName || !postCode) {
+    throw new ApiError(400, "All fields are required")
+  }
+
   const existingUser = await prisma.user.findFirst({
     where: {
       email: payload.email,

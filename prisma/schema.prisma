@@ -57,22 +57,21 @@ model Product {
   id               String   @id @default(uuid())
   brandId          String
   categoryId       String
-  subcategoryId    String
+  subCategoryId    String
   title            String
   price            String
-  discountRate     String
+  discountRate     Float @default(0)
   isFeatured       Boolean  @default(false)
   onSale           Boolean  @default(false)
   Image            Image[]
   Color            Color[]
   sizes            String[]
-  isStock          Boolean
   quantity         Int
   shortDescription String
   description      String
 
   category     Category       @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  subcategory  Subcategory    @relation(fields: [subcategoryId], references: [id], onDelete: Cascade)
+  subcategory  Subcategory    @relation(fields: [subCategoryId], references: [id], onDelete: Cascade)
   Review       Review[]
   CartItem     CartItem[]
   OrderItem    OrderItem[]
@@ -84,8 +83,8 @@ model Image {
   id        String  @id @default(uuid())
   url       String
   altText   String
-  productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model Color {
@@ -196,7 +195,7 @@ model WishlistItem {
 
 model Brand {
   id        String    @id @default(uuid())
-  name      String
+  name      String @unique
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   Product   Product[]

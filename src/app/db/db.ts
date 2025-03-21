@@ -5,10 +5,11 @@ import * as bcrypt from "bcrypt"
 
 export const initiateSuperAdmin = async () => {
   const payload: any = {
-    name: "Super",
-    username: "Admin",
-    email: "belalhossain22000@gmail.com",
-    phoneNumber: "1234567890",
+    firstName: "Super",
+    lastName: "Admin",
+    surName: "Admin",
+    postCode: "1219",
+    email: config.adminEmail,
     role: UserRole.SUPER_ADMIN,
   }
   const hashedPassword: string = await bcrypt.hash(
@@ -27,4 +28,6 @@ export const initiateSuperAdmin = async () => {
   await prisma.user.create({
     data: { ...payload, password: hashedPassword },
   })
+
+  // console.log(user)
 }
