@@ -1,5 +1,6 @@
 import dotenv from "dotenv"
 import path from "path"
+import { stripe } from "../app/utils/stripe"
 
 dotenv.config({ path: path.join(process.cwd(), ".env") })
 
@@ -22,4 +23,6 @@ export default {
     app_pass: process.env.APP_PASS,
   },
   adminEmail: process.env.ADMIN_EMAIL,
+
+  stripe_secret_key: process.env.STRIPE_SECRET_KEY as string,
 }
