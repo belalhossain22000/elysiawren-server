@@ -1,11 +1,11 @@
 import httpStatus from "http-status"
 import prisma from "../../../shared/prisma"
 import ApiError from "../../../errors/ApiErrors"
-import { Part } from "@aws-sdk/client-s3"
-import { CartItem } from "@prisma/client"
+import { Cart, CartItem } from "@prisma/client"
+import { CartServices } from "../Cart/cart.service"
 
 const createCartItem = async (
-  cartId: string,
+  userId: string,
   productId: string,
   quantity: string,
   price: number
@@ -20,19 +20,19 @@ const createCartItem = async (
     throw new ApiError(httpStatus.BAD_REQUEST, "Product not found")
   }
 
-  const cart = await prisma.cart.findUnique({
+  let cart = await prisma.cart.findUnique({
     where: {
-      id: cartId,
+      userId,
     },
   })
 
   if (!cart) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "Cart not found")
+    cart = await CartServices.createCart(userId)
   }
 
   const cartItem = await prisma.cartItem.create({
     data: {
-      cartId,
+      cartId: cart.id,
       productId,
       quantity: parseInt(quantity),
       price,

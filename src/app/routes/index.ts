@@ -7,6 +7,7 @@ import { BrandRoutes } from "../modules/Brand/brand.route"
 import { ProductRoutes } from "../modules/Product/product.route"
 import { ImageRoutes } from "../modules/Image/Image.routes"
 import { CartRoutes } from "../modules/Cart/cart.route"
+import { CartItemRoutes } from "../modules/CartItem/cartItem.route"
 
 const router = express.Router()
 
@@ -42,6 +43,10 @@ const moduleRoutes = [
   {
     path: "/cart",
     route: CartRoutes,
+  },
+  {
+    path: "/cart-items",
+    route: CartItemRoutes,
   },
 ]
 

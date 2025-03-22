@@ -5,6 +5,7 @@ import ApiError from "../../../errors/ApiErrors"
 import { cartItemServices } from "./cartItem.service"
 
 const createCartItem = catchAsync(async (req, res) => {
+  const userId = req.user.id
   const { cartId, productId, quantity, price } = req.body
 
   if (!cartId || !productId || !quantity || !price) {
@@ -14,7 +15,7 @@ const createCartItem = catchAsync(async (req, res) => {
     )
   }
   const result = await cartItemServices.createCartItem(
-    cartId,
+    userId,
     productId,
     quantity,
     price

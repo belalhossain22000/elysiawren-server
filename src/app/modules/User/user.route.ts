@@ -9,7 +9,11 @@ const router = express.Router()
 // *!register user
 router.post("/register", userController.createUser)
 // *!get all  user
-router.get("/", userController.getUsers)
+router.get(
+  "/",
+  auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
+  userController.getUsers
+)
 
 // *!profile user
 router.put(
