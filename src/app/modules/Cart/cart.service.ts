@@ -28,7 +28,11 @@ const getUserCart = async (userId: string) => {
       userId,
     },
     include: {
-      items: true,
+      items: {
+        include: {
+          product: true,
+        },
+      },
     },
   })) as Partial<Cart> | null
 

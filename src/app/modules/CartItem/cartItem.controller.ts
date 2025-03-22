@@ -6,9 +6,9 @@ import { cartItemServices } from "./cartItem.service"
 
 const createCartItem = catchAsync(async (req, res) => {
   const userId = req.user.id
-  const { cartId, productId, quantity, price } = req.body
+  const { productId, quantity, price } = req.body
 
-  if (!cartId || !productId || !quantity || !price) {
+  if (!productId || !quantity) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
       "Please provide all required fields"
@@ -17,8 +17,7 @@ const createCartItem = catchAsync(async (req, res) => {
   const result = await cartItemServices.createCartItem(
     userId,
     productId,
-    quantity,
-    price
+    quantity
   )
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -38,7 +37,8 @@ const getCartItems = catchAsync(async (req, res) => {
 })
 
 const updateCartItem = catchAsync(async (req, res) => {
-  const result = await cartItemServices.updateCartItem(req.body)
+  const id = req.params.id
+  const result = await cartItemServices.updateCartItem(id, req.body)
   sendResponse(res, {
     statusCode: httpStatus.OK,
     message: "CartItem updated successfully!",

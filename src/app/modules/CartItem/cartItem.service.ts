@@ -7,8 +7,7 @@ import { CartServices } from "../Cart/cart.service"
 const createCartItem = async (
   userId: string,
   productId: string,
-  quantity: string,
-  price: number
+  quantity: number
 ) => {
   const product = await prisma.product.findUnique({
     where: {
@@ -18,6 +17,12 @@ const createCartItem = async (
 
   if (!product) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Product not found")
+  }
+
+  const price = product.price * quantity
+
+  if (quantity > product.quantity) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Quantity not available")
   }
 
   let cart = await prisma.cart.findUnique({
@@ -34,7 +39,7 @@ const createCartItem = async (
     data: {
       cartId: cart.id,
       productId,
-      quantity: parseInt(quantity),
+      quantity,
       price,
     },
   })
@@ -52,8 +57,8 @@ const getCartItems = async (cartId: string) => {
   return cartItems
 }
 
-const updateCartItem = async (payload: Partial<CartItem>) => {
-  let { id, productId, quantity, price } = payload
+const updateCartItem = async (id: string, payload: Partial<CartItem>) => {
+  let { productId, quantity, price } = payload
 
   if (quantity) {
     quantity = parseInt(quantity.toString())
