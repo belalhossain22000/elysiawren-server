@@ -49,7 +49,8 @@ const updateImage = catchAsync(async (req: Request, res: Response) => {
 
 // Controller for deleting an image
 const deleteImage = catchAsync(async (req: Request, res: Response) => {
-  const result = await ImageService.deleteImage(req.body)
+  const { url } = req.params
+  const result = await ImageService.deleteImage(url)
   sendResponse(res, {
     statusCode: httpStatus.OK,
     message: "Image deleted successfully!",

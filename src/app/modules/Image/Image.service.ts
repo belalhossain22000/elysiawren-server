@@ -109,7 +109,7 @@ const updateImage = async (id: string, req: Request) => {
 }
 
 const deleteImage = async (url: string) => {
-  if (url) {
+  if (!url) {
     throw new ApiError(httpStatus.BAD_REQUEST, "No image provided")
   }
   const result = deleteFromDigitalOceanAWS(url)

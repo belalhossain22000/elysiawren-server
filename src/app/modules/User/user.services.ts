@@ -35,11 +35,21 @@ const createUserIntoDb = async (payload: User) => {
     Number(config.bcrypt_salt_rounds)
   )
 
-  const result = await prisma.user.create({
-    data: { ...payload, password: hashedPassword },
+  let user
+
+  prisma.$transaction(async (tsx) => {
+    user = await tsx.user.create({
+      data: { ...payload, password: hashedPassword },
+    })
+
+    await tsx.cart.create({
+      data: {
+        userId: user.id,
+      },
+    })
   })
 
-  return result
+  return user
 }
 
 // reterive all users from the database also searcing anf filetering

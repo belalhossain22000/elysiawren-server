@@ -22,6 +22,6 @@ router.post(
 // router.put("/:id", upload.single("file"), ImageController.updateImage);
 
 // Delete image by ID route (DELETE)
-router.delete("/delete", ImageController.deleteImage)
+router.delete("/delete/:url", ImageController.deleteImage)
 
 export const ImageRoutes = router
