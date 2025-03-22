@@ -30,3 +30,7 @@ const createOrder = catchAsync(async (req, res) => {
     data: result,
   })
 })
+
+export const OrderControllers = {
+  createOrder,
+}

@@ -254,7 +254,8 @@ enum OrderStatus {
   ACCEPTED
   SHIPPED
   COMPLETED
-  REJECTED
+  REQUESTED_FOR_CANCEL
+  CANCELLED
 }
 
 enum UserRole {

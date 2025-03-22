@@ -2,7 +2,9 @@ import httpStatus from "http-status"
 import prisma from "../../../shared/prisma"
 import ApiError from "../../../errors/ApiErrors"
 import { StripeOneTimePayment } from "../../utils/stripeOneTime"
-import { paymentStatus } from "@prisma/client"
+import { OrderStatus, paymentStatus } from "@prisma/client"
+import { date } from "zod"
+import { stripe } from "../../utils/stripe"
 
 const createOrder = async (
   userId: string,
@@ -30,7 +32,7 @@ const createOrder = async (
     return acc + item.price
   }, 0)
 
-  let order
+  let order: any
 
   await prisma.$transaction(async (tsx) => {
     const payment = await StripeOneTimePayment(
@@ -93,13 +95,168 @@ const createOrder = async (
   return order
 }
 
-// const getAllOrders = async (query:string) => {
-//   const {page=1, limit=10} = query
+const getAllOrders = async (query: any) => {
+  const { page = 1, limit = 10, status } = query
 
-//   const whereConditions = {}
+  const whereConditions: any = {}
 
-//   const totalOrders =
+  if (status) {
+    whereConditions["status"] = status
+  }
+
+  const totalOrders = await prisma.order.count({
+    where: whereConditions,
+  })
+
+  const orders = await prisma.order.findMany({
+    where: whereConditions,
+    include: {
+      orderItems: {
+        include: {
+          product: true,
+        },
+      },
+    },
+    skip: (page - 1) * limit,
+    take: limit,
+  })
+
+  return {
+    meta: {
+      totalOrders,
+      page: parseInt(page),
+      limit: parseInt(limit),
+    },
+    data: orders,
+  }
+}
+
+const getUserOrders = async (userId: string) => {
+  const orders = await prisma.order.findMany({
+    where: {
+      userId,
+    },
+    include: {
+      orderItems: {
+        include: {
+          product: true,
+        },
+      },
+    },
+  })
+
+  return orders
+}
+
+const getOrderById = async (orderId: string) => {
+  const order = await prisma.order.findUnique({
+    where: {
+      id: orderId,
+    },
+    include: {
+      orderItems: {
+        include: {
+          product: true,
+        },
+      },
+    },
+  })
+
+  return order
+}
+
+const updateOrderStatus = async (orderId: string, status: OrderStatus) => {
+  const order = await prisma.order.update({
+    where: {
+      id: orderId,
+    },
+    data: {
+      status,
+    },
+  })
+
+  return order
+}
+
+const cancelOrder = async (orderId: string) => {
+  const order = await prisma.order.findUnique({
+    where: {
+      id: orderId,
+    },
+  })
+
+  if (!order) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Order not found")
+  }
+
+  if (order.status !== OrderStatus.PENDING) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Order cannot be cancelled")
+  }
+
+  const payment = await prisma.payment.findFirst({
+    where: {
+      orderId,
+    },
+  })
+
+  if (!payment) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Payment not found")
+  }
+
+  if (payment.paymentStatus === paymentStatus.SUCCEEDED) {
+    if (payment.transactionId) {
+      await stripe.refunds.create({
+        payment_intent: payment.transactionId,
+      })
+    } else {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        "Invalid transaction ID for refund"
+      )
+    }
+  }
+
+  return prisma.order.update({
+    where: {
+      id: orderId,
+    },
+    data: {
+      status: OrderStatus.CANCELLED,
+    },
+  })
+}
+
+const requestToCancelOrder = async (orderId: string) => {
+  const order = await prisma.order.findUnique({
+    where: {
+      id: orderId,
+    },
+  })
+
+  if (!order) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Order not found")
+  }
+
+  if (order.status !== OrderStatus.PENDING) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Order cannot be cancelled")
+  }
+
+  return prisma.order.update({
+    where: {
+      id: orderId,
+    },
+    data: {
+      status: OrderStatus.REQUESTED_FOR_CANCEL,
+    },
+  })
+}
 
 export const OrderServices = {
   createOrder,
+  getAllOrders,
+  getUserOrders,
+  getOrderById,
+  updateOrderStatus,
+  cancelOrder,
+  requestToCancelOrder,
 }
