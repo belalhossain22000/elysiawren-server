@@ -120,7 +120,6 @@ model CartItem {
 model Order {
   id              String      @id @default(uuid())
   userId          String
-  // cartId          String
   totalAmount     Float
   status          OrderStatus // e.g., 'Pending', 'Completed', 'Cancelled'
   createdAt       DateTime    @default(now())
@@ -132,7 +131,6 @@ model Order {
   country         String
 
   user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  // cart       Cart        @relation(fields: [cartId], references: [id], onDelete: Cascade)
   orderItems OrderItem[]
   Payment    Payment[]
 }

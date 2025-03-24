@@ -28,6 +28,8 @@ const createOrder = async (
     throw new ApiError(httpStatus.BAD_REQUEST, "Cart not found")
   }
 
+  // console.log({ cart })
+
   const totalAmount = cart.items.reduce((acc, item) => {
     return acc + item.price
   }, 0)
@@ -45,6 +47,8 @@ const createOrder = async (
       throw new ApiError(httpStatus.BAD_REQUEST, "Payment failed")
     }
 
+    // console.log({ payment })
+
     order = await tsx.order.create({
       data: {
         userId,
@@ -58,6 +62,8 @@ const createOrder = async (
       },
     })
 
+    // console.log({ order })
+
     await tsx.orderItem.createMany({
       data: cart.items.map((item) => ({
         orderId: order.id,
@@ -67,7 +73,13 @@ const createOrder = async (
       })),
     })
 
-    await prisma.payment.create({
+    if (!order.id) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "Order not created")
+    }
+
+    console.log(order.id)
+
+    await tsx.payment.create({
       data: {
         userId,
         paymentMethod: payment.payment_method as string,
@@ -100,7 +112,7 @@ const getAllOrders = async (query: any) => {
 
   const whereConditions: any = {}
 
-  if (status) {
+  if (status as OrderStatus) {
     whereConditions["status"] = status
   }
 
@@ -131,11 +143,22 @@ const getAllOrders = async (query: any) => {
   }
 }
 
-const getUserOrders = async (userId: string) => {
+const getUserOrders = async (userId: string, query: any) => {
+  const { page = 1, limit = 10 } = query
+  const skip = (page - 1) * limit
+  const take = limit
+
+  const whereConditions: any = {
+    userId,
+  }
+
+  const totalOrders = await prisma.order.count({
+    where: whereConditions,
+  })
   const orders = await prisma.order.findMany({
-    where: {
-      userId,
-    },
+    skip,
+    take,
+    where: whereConditions,
     include: {
       orderItems: {
         include: {
@@ -189,7 +212,10 @@ const cancelOrder = async (orderId: string) => {
     throw new ApiError(httpStatus.NOT_FOUND, "Order not found")
   }
 
-  if (order.status !== OrderStatus.PENDING) {
+  if (
+    order.status !== OrderStatus.PENDING &&
+    order.status !== OrderStatus.REQUESTED_FOR_CANCEL
+  ) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Order cannot be cancelled")
   }
 

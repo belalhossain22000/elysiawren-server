@@ -31,6 +31,73 @@ const createOrder = catchAsync(async (req, res) => {
   })
 })
 
+const getAllOrders = catchAsync(async (req, res) => {
+  const userId = req.user.id
+  const orders = await OrderServices.getAllOrders(req.query)
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Orders fetched successfully!",
+    data: orders,
+  })
+})
+
+const getOrderById = catchAsync(async (req, res) => {
+  const orderId = req.params.id
+  const order = await OrderServices.getOrderById(orderId)
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Order fetched successfully!",
+    data: order,
+  })
+})
+
+const getUserOrders = catchAsync(async (req, res) => {
+  const userId = req.user.id
+  const orders = await OrderServices.getUserOrders(userId, req.query)
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Orders fetched successfully!",
+    data: orders,
+  })
+})
+
+const updateOrderStatus = catchAsync(async (req, res) => {
+  const orderId = req.params.id
+  const { status } = req.body
+  const order = await OrderServices.updateOrderStatus(orderId, status)
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Order status updated successfully!",
+    data: order,
+  })
+})
+
+const cancelOrder = catchAsync(async (req, res) => {
+  const orderId = req.params.id
+  const result = await OrderServices.cancelOrder(orderId)
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Order cancelled successfully!",
+    data: result,
+  })
+})
+
+const requestToCancelOrder = catchAsync(async (req, res) => {
+  const orderId = req.params.id
+  const result = await OrderServices.requestToCancelOrder(orderId)
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Request to cancel order sent successfully!",
+    data: result,
+  })
+})
+
 export const OrderControllers = {
   createOrder,
+  getAllOrders,
+  getOrderById,
+  getUserOrders,
+  updateOrderStatus,
+  cancelOrder,
+  requestToCancelOrder,
 }

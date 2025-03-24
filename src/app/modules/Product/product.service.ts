@@ -12,6 +12,7 @@ const createProduct = async (req: Product) => {
     price,
     quantity,
     description,
+    sizes,
   } = req
 
   // console.log("req", req)
@@ -23,7 +24,8 @@ const createProduct = async (req: Product) => {
     !subCategoryId ||
     !price ||
     !quantity ||
-    !description
+    !description ||
+    !sizes
   ) {
     throw new Error("All fields are required")
   }
@@ -69,6 +71,7 @@ const createProduct = async (req: Product) => {
       description,
       quantity,
       shortDescription: description,
+      sizes,
     },
   })
 
