@@ -22,8 +22,8 @@ const createReview = async (
 
 const getAllReviews = async (query: any) => {
   const { page = 1, limit = 10, userId, productId } = query
-  const skip = (page - 1) * limit
-  const take = limit
+  const skip = (Number(page) - 1) * Number(limit)
+  const take = Number(limit)
 
   const whereConditions: any = {}
 

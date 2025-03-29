@@ -90,8 +90,8 @@ const getAllProducts = async (query: any) => {
     title,
     isAvailable = "true",
   } = query
-  const skip = (page - 1) * limit
-  const take = limit
+  const skip = (Number(page) - 1) * Number(limit)
+  const take = Number(limit)
 
   // console.log(typeof isAvailable)
 

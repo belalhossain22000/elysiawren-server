@@ -131,7 +131,8 @@ const deleteImage = async (imageId: string) => {
 
 const getAllImages = async (query: any) => {
   const { page = 1, limit = 10 } = query
-  const skip = (page - 1) * limit
+  const skip = (Number(page) - 1) * Number(limit)
+  const take = Number(limit)
 
   const whereConditions = {}
 
@@ -142,7 +143,7 @@ const getAllImages = async (query: any) => {
   const images = await prisma.image.findMany({
     where: whereConditions,
     skip,
-    take: limit,
+    take,
   })
 
   return {

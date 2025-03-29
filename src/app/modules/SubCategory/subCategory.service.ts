@@ -32,8 +32,8 @@ const createSubCategory = async (name: string, categoryId: string) => {
 
 const getAllSubCategories = async (query: any) => {
   const { page = 1, limit = 10, categoryId } = query
-  const skip = (page - 1) * limit
-  const take = limit
+  const skip = (Number(page) - 1) * Number(limit)
+  const take = Number(limit)
 
   const whereConditions: any = {}
 

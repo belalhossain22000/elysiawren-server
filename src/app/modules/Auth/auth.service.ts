@@ -4,9 +4,9 @@ import { jwtHelpers } from "../../../helpars/jwtHelpers"
 import prisma from "../../../shared/prisma"
 import * as bcrypt from "bcrypt"
 import ApiError from "../../../errors/ApiErrors"
-import emailSender from "./emailSender"
 import { UserStatus } from "@prisma/client"
 import httpStatus from "http-status"
+import { sendEmail } from "../../utils/sendEmail"
 
 // user login
 const loginUser = async (payload: { email: string; password: string }) => {
@@ -106,9 +106,9 @@ const forgotPassword = async (payload: { email: string }) => {
   const resetPassLink =
     config.reset_pass_link + `?userId=${userData.id}&token=${resetPassToken}`
 
-  await emailSender(
-    "Reset Your Password",
+  await sendEmail(
     userData.email,
+    "Reset Your Password",
     `
      <div style="font-family: Arial, sans-serif; line-height: 1.6;">
           <p>Dear ${userData.firstName + userData.lastName},</p>

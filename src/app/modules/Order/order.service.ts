@@ -122,15 +122,8 @@ const createOrder = async (
 
 const getAllOrders = async (query: any) => {
   let { page = 1, limit = 10, status } = query
-  console.log(typeof page)
-
-  if (page) {
-    page *= 1
-  }
-
-  if (limit) {
-    limit *= 1
-  }
+  const skip = (Number(page) - 1) * Number(limit)
+  const take = Number(limit)
 
   const whereConditions: any = {}
 
@@ -151,8 +144,8 @@ const getAllOrders = async (query: any) => {
         },
       },
     },
-    skip: (page - 1) * limit,
-    take: limit,
+    skip,
+    take,
   })
 
   return {
