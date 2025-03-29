@@ -5,8 +5,15 @@ import ApiError from "../../../errors/ApiErrors"
 import { OrderServices } from "./order.service"
 const createOrder = catchAsync(async (req, res) => {
   const userId = req.user.id
-  const { paymentMethodId, shippingAddress, zipCode, city, state, country } =
-    req.body
+  const {
+    paymentMethodId,
+    shippingAddress,
+    zipCode,
+    city,
+    state,
+    country,
+    shippingType,
+  } = req.body
 
   if (!userId) {
     throw new ApiError(
@@ -22,7 +29,8 @@ const createOrder = catchAsync(async (req, res) => {
     zipCode,
     city,
     state,
-    country
+    country,
+    shippingType
   )
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -88,6 +96,18 @@ const requestToCancelOrder = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     message: "Request to cancel order sent successfully!",
+    data: result,
+  })
+})
+
+const reviewOrder = catchAsync(async (req, res) => {
+  const userId = req.user.id
+
+  const result = await OrderServices.reviewOrder(userId)
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Order reviewed successfully!",
     data: result,
   })
 })

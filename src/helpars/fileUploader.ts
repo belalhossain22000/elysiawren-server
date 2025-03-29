@@ -17,9 +17,8 @@ const uploadSingle = upload.single("image")
 // upload multiple image
 const uploadMultiple = upload.fields([
   { name: "profileImage", maxCount: 1 },
-  { name: "companyLogo", maxCount: 1 },
-  { name: "businessLicense", maxCount: 1 },
-  { name: "transportPermitImage", maxCount: 1 },
+  { name: "images", maxCount: 1 },
+  { name: "productImages", maxCount: 1 },
 ])
 
 export const fileUploader = {

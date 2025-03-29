@@ -8,17 +8,17 @@ export const sendEmail = async (to: string, subject: string, html: string) => {
       port: 2525,
       secure: false, // Use TLS, `false` ensures STARTTLS
       auth: {
-        user: config.SEND_EMAIL, // Your email address
-        pass: config.emailSender.app_pass, // Your app-specific password
+        user: config.brevo_email, // Your email address
+        pass: config.brevo_pass, // Your app-specific password
       },
     })
 
     const mailOptions = {
-      from: `"Rhino Team" <${config.emailSender.email}>`, // Sender's name and email
+      from: `"Rhino Team" <${config.email}>`, // Sender's name and email
       to, // Recipient's email
       subject, // Email subject
       text: html.replace(/<[^>]+>/g, ""), // Generate plain text version by stripping HTML tags
-      html, // HTML email body
+      html,
     }
 
     // Send the email

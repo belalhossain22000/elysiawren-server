@@ -36,6 +36,15 @@ const getImageById = catchAsync(async (req: Request, res: Response) => {
   })
 })
 
+const getAllImages = catchAsync(async (req: Request, res: Response) => {
+  const images = await ImageService.getAllImages(req.query)
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Images retrieved successfully",
+    data: images,
+  })
+})
+
 // Controller for updating an image
 const updateImage = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params
@@ -49,8 +58,8 @@ const updateImage = catchAsync(async (req: Request, res: Response) => {
 
 // Controller for deleting an image
 const deleteImage = catchAsync(async (req: Request, res: Response) => {
-  const { url } = req.params
-  const result = await ImageService.deleteImage(url)
+  const { id } = req.params
+  const result = await ImageService.deleteImage(id)
   sendResponse(res, {
     statusCode: httpStatus.OK,
     message: "Image deleted successfully!",
@@ -64,4 +73,5 @@ export const ImageController = {
   updateImage,
   deleteImage,
   createImages,
+  getAllImages,
 }

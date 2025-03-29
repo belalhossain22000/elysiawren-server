@@ -40,7 +40,6 @@ const createImage = async (req: Request) => {
       data: {
         url: imageUrl,
         altText,
-        productId,
       },
     })
     return { imageUrl }
@@ -108,12 +107,52 @@ const updateImage = async (id: string, req: Request) => {
   return image
 }
 
-const deleteImage = async (url: string) => {
-  if (!url) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "No image provided")
+const deleteImage = async (imageId: string) => {
+  const image = await prisma.image.findUnique({
+    where: {
+      id: imageId,
+    },
+  })
+
+  if (!image) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Image not found")
   }
-  const result = deleteFromDigitalOceanAWS(url)
-  return result
+
+  await prisma.$transaction(async (tsx) => {
+    tsx.image.delete({
+      where: {
+        id: imageId,
+      },
+    })
+
+    await deleteFromDigitalOceanAWS(image.url)
+  })
+}
+
+const getAllImages = async (query: any) => {
+  const { page = 1, limit = 10 } = query
+  const skip = (page - 1) * limit
+
+  const whereConditions = {}
+
+  const totalImages = await prisma.image.count({
+    where: whereConditions,
+  })
+
+  const images = await prisma.image.findMany({
+    where: whereConditions,
+    skip,
+    take: limit,
+  })
+
+  return {
+    meta: {
+      totalImages,
+      page,
+      limit,
+    },
+    data: images,
+  }
 }
 
 export const ImageService = {
@@ -122,4 +161,5 @@ export const ImageService = {
   updateImage,
   deleteImage,
   createImages,
+  getAllImages,
 }

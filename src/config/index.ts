@@ -26,12 +26,12 @@ export default {
 
   stripe_secret_key: process.env.STRIPE_SECRET_KEY as string,
 
-  SEND_EMAIL: process.env.SEND_EMAIL,
-  sender_email: process.env.SENDER_EMAIL,
-  sender_pass: process.env.SENDER_PASS,
-
   DO_SPACES_ENDPOINT: process.env.DO_SPACE_ENDPOINT,
   DO_ACCESS_KEY_ID: process.env.DO_SPACE_ACCESS_KEY,
   DO_SECRET_ACCESS_KEY: process.env.DO_SPACE_SECRET_KEY,
   DO_SPACES_BUCKET: process.env.DO_SPACE_BUCKET,
+
+  brevo_email: process.env.BREVO_EMAIL,
+  brevo_pass: process.env.BREVO_PASS,
+  email: process.env.EMAIL,
 }

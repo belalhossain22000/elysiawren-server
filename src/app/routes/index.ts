@@ -10,6 +10,12 @@ import { CartRoutes } from "../modules/Cart/cart.route"
 import { CartItemRoutes } from "../modules/CartItem/cartItem.route"
 import { OrderRoutes } from "../modules/Order/order.route"
 import { ReviewRoutes } from "../modules/Review/review.route"
+import { ShippingTypeRoutes } from "../modules/ShippingType/shippingType.route"
+import { AdsRoutes } from "../modules/Ads/ads.route"
+import { NewsletterRoutes } from "../modules/Newsletter/newsletter.route"
+import { BannerRoutes } from "../modules/Banner/banner.route"
+import { TestimonialRoutes } from "../modules/Testimonial/testimonial.route"
+import { WishlistRoutes } from "../modules/Wishlist/wishlist.route"
 
 const router = express.Router()
 
@@ -57,6 +63,34 @@ const moduleRoutes = [
   {
     path: "/reviews",
     route: ReviewRoutes,
+  },
+  {
+    path: "/shipping-types",
+    route: ShippingTypeRoutes,
+  },
+  {
+    path: "/shipping-types",
+    route: ShippingTypeRoutes,
+  },
+  {
+    path: "/ads",
+    route: AdsRoutes,
+  },
+  {
+    path: "/newsletters",
+    route: NewsletterRoutes,
+  },
+  {
+    path: "/banner",
+    route: BannerRoutes,
+  },
+  {
+    path: "/testimonials",
+    route: TestimonialRoutes,
+  },
+  {
+    path: "/wishlist",
+    route: WishlistRoutes,
   },
 ]
 

@@ -13,7 +13,8 @@ const createOrder = async (
   zipCode: string,
   city: string,
   state: string,
-  country: string
+  country: string,
+  shippingType: string
 ) => {
   const cart = await prisma.cart.findUnique({
     where: {
@@ -28,11 +29,23 @@ const createOrder = async (
     throw new ApiError(httpStatus.BAD_REQUEST, "Cart not found")
   }
 
+  const shippingCost = await prisma.shippingPrice.findUnique({
+    where: {
+      type: shippingType,
+    },
+  })
+
+  if (!shippingCost) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Shipping type not found")
+  }
+
   // console.log({ cart })
 
-  const totalAmount = cart.items.reduce((acc, item) => {
+  let totalAmount = cart.items.reduce((acc, item) => {
     return acc + item.price
   }, 0)
+
+  totalAmount += shippingCost.price
 
   let order: any
 
@@ -108,7 +121,16 @@ const createOrder = async (
 }
 
 const getAllOrders = async (query: any) => {
-  const { page = 1, limit = 10, status } = query
+  let { page = 1, limit = 10, status } = query
+  console.log(typeof page)
+
+  if (page) {
+    page *= 1
+  }
+
+  if (limit) {
+    limit *= 1
+  }
 
   const whereConditions: any = {}
 
@@ -277,6 +299,40 @@ const requestToCancelOrder = async (orderId: string) => {
   })
 }
 
+const reviewOrder = async (userId: string) => {
+  const cartId = await prisma.cart.findUnique({
+    where: {
+      userId,
+    },
+  })
+
+  if (!cartId) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Cart not found")
+  }
+
+  const cartItems = await prisma.cartItem.findMany({
+    where: {
+      cartId: cartId.id,
+    },
+  })
+
+  if (!cartItems) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Cart items not found")
+  }
+
+  let orderItems: any[] = []
+
+  cartItems.forEach((item) => {
+    orderItems.push({
+      productId: item.productId,
+      quantity: item.quantity,
+      price: item.price,
+    })
+  })
+
+  return orderItems
+}
+
 export const OrderServices = {
   createOrder,
   getAllOrders,
@@ -285,4 +341,5 @@ export const OrderServices = {
   updateOrderStatus,
   cancelOrder,
   requestToCancelOrder,
+  reviewOrder,
 }

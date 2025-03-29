@@ -15,13 +15,15 @@ router.post(
   ImageController.createImages
 )
 
+router.get("/", ImageController.getAllImages)
+
 // Get image by ID route (GET)
-// router.get("/:id", ImageController.getImageById);
+router.get("/:id", ImageController.getImageById)
 
 // // Update image by ID route (PUT)
 // router.put("/:id", upload.single("file"), ImageController.updateImage);
 
 // Delete image by ID route (DELETE)
-router.delete("/delete/:url", ImageController.deleteImage)
+router.delete("/delete/:id", ImageController.deleteImage)
 
 export const ImageRoutes = router

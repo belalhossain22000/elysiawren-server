@@ -33,7 +33,7 @@ const getCartById = catchAsync(async (req, res) => {
 })
 
 const getCartByUserId = catchAsync(async (req, res) => {
-  const { userId } = req.params
+  const userId = req.user.id
   const result = await CartServices.getUserCart(userId)
   sendResponse(res, {
     statusCode: httpStatus.OK,

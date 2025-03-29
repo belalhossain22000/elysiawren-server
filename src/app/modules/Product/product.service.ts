@@ -13,6 +13,7 @@ const createProduct = async (req: Product) => {
     quantity,
     description,
     sizes,
+    images,
   } = req
 
   // console.log("req", req)
@@ -72,6 +73,7 @@ const createProduct = async (req: Product) => {
       quantity,
       shortDescription: description,
       sizes,
+      images,
     },
   })
 
@@ -136,7 +138,6 @@ const getAllProducts = async (query: any) => {
       Brand: true,
       category: true,
       subcategory: true,
-      Image: true,
       Review: true,
     },
   })
@@ -234,12 +235,6 @@ const deleteProduct = async (id: string) => {
   }
 
   await prisma.$transaction(async (tsx) => {
-    await tsx.image.deleteMany({
-      where: {
-        productId: id,
-      },
-    })
-
     await tsx.review.deleteMany({
       where: {
         productId: id,

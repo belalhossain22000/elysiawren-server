@@ -19,7 +19,8 @@ const createCartItem = async (
     throw new ApiError(httpStatus.BAD_REQUEST, "Product not found")
   }
 
-  const price = product.price * quantity
+  const price =
+    (product.price - (product.price * product.discountRate) / 100) * quantity
 
   if (quantity > product.quantity) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Quantity not available")
@@ -58,14 +59,23 @@ const getCartItems = async (cartId: string) => {
 }
 
 const updateCartItem = async (id: string, payload: Partial<CartItem>) => {
-  let { productId, quantity, price } = payload
+  let { productId, quantity } = payload
 
-  if (quantity) {
-    quantity = parseInt(quantity.toString())
+  let price
+
+  const product = await prisma.product.findUnique({
+    where: {
+      id: productId,
+    },
+  })
+
+  if (!product) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Product not found")
   }
 
-  if (price) {
-    price = parseFloat(price.toString())
+  if (quantity) {
+    price =
+      (product.price - (product.price * product.discountRate) / 100) * quantity
   }
 
   const cartItem = await prisma.cartItem.findUnique({
